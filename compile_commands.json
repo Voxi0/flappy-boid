@@ -1,0 +1,38 @@
+[
+ {
+  "directory": "/home/voxi0/Desktop/c/flappy-boid",
+  "arguments": [
+   "gcc",
+   "-I",
+   "include",
+   "-std=c23",
+   "-Wall",
+   "-Wextra",
+   "-pedantic",
+   "-I/nix/store/vcli4dl2wc4pm103vpr11kghnwmbmnm4-raylib-5.5-unstable-2026-01-20/include",
+   "-c",
+   "src/main.c",
+   "-o",
+   "build/src/main.c.o"
+  ],
+  "file": "src/main.c"
+ },
+ {
+  "directory": "/home/voxi0/Desktop/c/flappy-boid",
+  "arguments": [
+   "gcc",
+   "-I",
+   "include",
+   "-std=c23",
+   "-Wall",
+   "-Wextra",
+   "-pedantic",
+   "-I/nix/store/vcli4dl2wc4pm103vpr11kghnwmbmnm4-raylib-5.5-unstable-2026-01-20/include",
+   "-c",
+   "src/bird.c",
+   "-o",
+   "build/src/bird.c.o"
+  ],
+  "file": "src/bird.c"
+ }
+]
