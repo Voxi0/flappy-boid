@@ -13,6 +13,11 @@
 					gcc
 					pkg-config
 					raylib
+
+					emscripten
+					clang
+					python3
+					nodejs
 				];
 			};
 		};

@@ -1,8 +1,12 @@
-#include <bird.h>
-#include <raylib.h>
-
 #define RAYGUI_IMPLEMENTATION
+#include<raylib.h>
 #include<raygui.h>
+
+#include<bird.h>
+
+#if defined(PLATFORM_WEB)
+	#include "../.emscripten_cache/sysroot/include/emscripten.h"
+#endif
 
 #define WIN_TITLE "flappy-boid"
 
@@ -16,85 +20,99 @@ typedef enum {
 GameState_t gameState = STATE_MENU;
 
 // Function prototypes
+void update(void);
 static void drawMainMenu(void);
+
+// Main camera
+Camera2D cam = {0};
+
+// Bird/Player
+Bird bird = {
+	.size = 0.1f,
+};
+Rectangle box = {0};
 
 // Main
 int main(void) {
 	// Main window
-	SetConfigFlags(FLAG_FULLSCREEN_MODE);
-	InitWindow(0, 0, WIN_TITLE);
+	InitWindow(GetMonitorWidth(GetCurrentMonitor()), GetMonitorHeight(GetCurrentMonitor()), WIN_TITLE);
+
+	cam.target = (Vector2){0.0f, 0.0f};
+	cam.offset = (Vector2){0.0f, 0.0f};
+	cam.rotation = 0.0f;
+	cam.zoom = 1.0f;
+
+	bird.sprite = LoadTexture("assets/sprites/bird.png");
+	bird.gravity = 600;
+	bird.jumpVel = 320;
+	bird.src = (Rectangle) {
+		0, 0,
+		bird.sprite.width, bird.sprite.height
+	};
+	bird.dst = (Rectangle) {
+		0, 0,
+		bird.sprite.width * bird.size,
+		bird.sprite.height * bird.size
+	};
+
+	box.x = GetScreenWidth() / 2.0f;
+	box.y = GetScreenHeight() - 200;
+	box.width = GetScreenWidth();
+	box.height = 100;
+
+#if defined(PLATFORM_WEB)
+    emscripten_set_main_loop(update, 0, 1);
+#else
 	SetTargetFPS(60);
 
-	// Main camera
-	Camera2D cam = {
-		.target = (Vector2){0.0f, 0.0f},
-		.offset = (Vector2){0.0f, 0.0f},
-		.rotation = 0.0f,
-		.zoom = 1.0f,
-	};
-
-	// Bird/Player
-	Bird bird = {
-		.sprite = LoadTexture("assets/sprites/bird.png"),
-		.position = (Vector2){45.0f, (GetScreenHeight() / 2.0f)},
-		.size = 0.1f,
-		.gravity = 600,
-		.jumpVel = 320,
-	};
-
-	bird.src = (Rectangle){0,0,bird.sprite.width, bird.sprite.height};
-	bird.rec = (Rectangle){0,0,bird.sprite.width * bird.size, bird.sprite.height * bird.size};
-
-	Rectangle box = {
-		.x = GetScreenWidth() / 2.0f,
-		.y = GetScreenHeight() - 200,
-		.width = GetScreenWidth(),
-		.height = 100,
-	};
-
 	// Main loop
-	while (!WindowShouldClose() && gameState != STATE_EXIT) {
-		switch(gameState) {
-			// Main menu
-			case STATE_MENU:
-				BeginDrawing();
-					ClearBackground(GRAY);
-					drawMainMenu();
-				EndDrawing();
-				break;
-
-			// Game over
-			case STATE_GAMEOVER:
-				BeginDrawing();
-					ClearBackground(RED);
-					Vector2 size = MeasureTextEx(GetFontDefault(), "GAME OVER.", 40, 1);
-					DrawText("GAME OVER.", (GetScreenWidth() - size.x) / 2, (GetScreenHeight() - size.y) / 2, 40, WHITE);
-				EndDrawing();
-				break;
-
-			// Draw the game and all
-			case STATE_PLAYING:
-				birdUpdate(&bird);
-				BeginDrawing();
-					ClearBackground(RAYWHITE);
-					DrawFPS(10, 10);
-					if(CheckCollisionRecs(bird.rec, box)) gameState = STATE_GAMEOVER;
-					BeginMode2D(cam);
-						// Draw bird/player and box
-						DrawRectangleRec(box, RED);
-						DrawTexturePro(bird.sprite, bird.src, bird.rec, (Vector2) {0,0}, 0, WHITE);
-					EndMode2D();
-				EndDrawing();
-				break;
-			case STATE_EXIT:
-				break;
-		}
-	}
+	while (!WindowShouldClose() && gameState != STATE_EXIT) update();
+#endif
 
 	// Terminate program
 	UnloadTexture(bird.sprite);
 	CloseWindow();
 	return 0;
+}
+
+// Main loop
+void update(void) {
+	switch(gameState) {
+		// Main menu
+		case STATE_MENU:
+			BeginDrawing();
+				ClearBackground(GRAY);
+				drawMainMenu();
+			EndDrawing();
+			break;
+
+		// Game over
+		case STATE_GAMEOVER:
+			BeginDrawing();
+				ClearBackground(RED);
+				Vector2 size = MeasureTextEx(GetFontDefault(), "GAME OVER.", 40, 1);
+				DrawText("GAME OVER.", (GetScreenWidth() - size.x) / 2, (GetScreenHeight() - size.y) / 2, 40, WHITE);
+			EndDrawing();
+			break;
+
+		// Draw the game and all
+		case STATE_PLAYING:
+			birdUpdate(&bird);
+			BeginDrawing();
+				ClearBackground(RAYWHITE);
+				DrawFPS(10, 10);
+				if(CheckCollisionRecs(bird.dst, box)) gameState = STATE_GAMEOVER;
+				BeginMode2D(cam);
+					// Draw bird/player and box
+					DrawRectangleRec(box, RED);
+					DrawTexturePro(bird.sprite, bird.src, bird.dst, (Vector2) {0, 0}, 0, WHITE);
+				EndMode2D();
+			EndDrawing();
+			break;
+
+		default:
+			break;
+	}
 }
 
 // Main menu
