@@ -2,8 +2,8 @@
 
 typedef struct {
 	Texture2D sprite;
-	Vector2 position, velocity;
-	Rectangle src, rec;
+	Vector2 velocity;
+	Rectangle src, dst;
 	int gravity, jumpVel;
 	const float size;
 } Bird;

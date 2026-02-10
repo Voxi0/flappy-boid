@@ -9,10 +9,17 @@
 		perSystem = {pkgs, ...}: {
 			devShells.default = pkgs.mkShellNoCC {
 				nativeBuildInputs = with pkgs; [
+					unzip
+
 					compiledb
 					gcc
 					pkg-config
 					raylib
+
+					emscripten
+					clang
+					python3
+					nodejs
 				];
 			};
 		};

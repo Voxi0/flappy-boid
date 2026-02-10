@@ -10,7 +10,6 @@ void birdUpdate(Bird *bird) {
 	
 	// Movement
 	if(IsKeyPressed(KEY_SPACE)) bird->velocity.y = -bird->jumpVel;
-
 	if(IsKeyDown(KEY_D)) bird->velocity.x += bird->gravity * deltaTime;
 	else if(IsKeyDown(KEY_A)) bird->velocity.x -= bird->gravity * deltaTime;
 
@@ -18,8 +17,6 @@ void birdUpdate(Bird *bird) {
 	bird->velocity.x *= powf(0.1f, deltaTime);
 
 	// Apply velocity
-	// bird->position.x += bird->velocity.x * deltaTime;
-	// bird->position.y += bird->velocity.y * deltaTime;
-	bird->rec.x += bird->velocity.x * deltaTime;
-	bird->rec.y += bird->velocity.y * deltaTime;
+	bird->dst.x += bird->velocity.x * deltaTime;
+	bird->dst.y += bird->velocity.y * deltaTime;
 }

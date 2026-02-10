@@ -1,0 +1,15 @@
+#!/nix/store/f15k3dpilmiyv6zgpib289rnjykgr1r4-bash-5.3p9/bin/sh
+
+echo "emscripten sdl2-config called with $*" >&2
+
+for arg in "$@"; do
+  case "$arg" in
+    --cflags|--libs)
+      echo "-sUSE_SDL=2"
+      ;;
+    --version)
+      echo "2.0.10"
+      ;;
+  esac
+done
+
