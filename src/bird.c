@@ -3,7 +3,7 @@
 #include<bird.h>
 
 void birdUpdate(Bird *bird) {
-	float deltaTime = GetFrameTime();
+	const float deltaTime = GetFrameTime();
 
 	// Gravity
 	bird->velocity.y += bird->gravity * deltaTime;
