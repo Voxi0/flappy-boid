@@ -2,37 +2,19 @@
  {
   "directory": "/home/voxi0/Desktop/c/flappy-boid",
   "arguments": [
-   "gcc",
+   "clang++",
    "-I",
    "include",
-   "-std=c23",
+   "-std=c++26",
    "-Wall",
    "-Wextra",
-   "-pedantic",
-   "-I/nix/store/vcli4dl2wc4pm103vpr11kghnwmbmnm4-raylib-5.5-unstable-2026-01-20/include",
+   "-Wpedantic",
+   "-I/nix/store/06rnravqpz3jn9xw1kvc98ad9xipi0qx-raylib-5.5-unstable-2026-01-20/include",
    "-c",
-   "src/main.c",
+   "src/main.cpp",
    "-o",
-   "build/src/main.c.o"
+   "build/src/main.cpp.o"
   ],
-  "file": "src/main.c"
- },
- {
-  "directory": "/home/voxi0/Desktop/c/flappy-boid",
-  "arguments": [
-   "gcc",
-   "-I",
-   "include",
-   "-std=c23",
-   "-Wall",
-   "-Wextra",
-   "-pedantic",
-   "-I/nix/store/vcli4dl2wc4pm103vpr11kghnwmbmnm4-raylib-5.5-unstable-2026-01-20/include",
-   "-c",
-   "src/bird.c",
-   "-o",
-   "build/src/bird.c.o"
-  ],
-  "file": "src/bird.c"
+  "file": "src/main.cpp"
  }
 ]
