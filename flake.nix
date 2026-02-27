@@ -14,10 +14,6 @@
           compiledb
           pkg-config
           raylib
-
-          emscripten
-          python3
-          nodejs
         ];
       };
     });

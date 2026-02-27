@@ -1,20 +1,15 @@
 #include <game.hpp>
 
-// We load one texture image for both top and bottom pipes
-// We can easily flip the image why bother storing two textures?
-Texture2D pipeTexture;
-
-// Spawn a pair of pipes
-void Game::spawnPipePair(void) {
-	int paired {};
-	for(Pipe &pipe : this->pipes) {
-		if (pipe.dstRect.x < -pipe.dstRect.width || pipe.dstRect.x == 0) {
-			pipe.spawn(GetScreenWidth() + 50, GetRandomValue(150, GetScreenHeight() - 150), 220, (paired == 0));
-			paired++;
-			if(paired == 2) break;
-		}
-	}
-}
+static Texture2D pipeBase, pipeCap;
+static Rectangle pipeBaseSrc {
+	.x = 0,
+	.y = 0,
+	.height = 10,
+};
+static Rectangle pipeCapSrc {
+	.x = 0,
+	.height = 10,
+};
 
 // Initialize everything
 Game::Game(int winWidth, int winHeight, std::string_view winTitle, unsigned int cfgFlags) {
@@ -23,27 +18,22 @@ Game::Game(int winWidth, int winHeight, std::string_view winTitle, unsigned int 
 	InitWindow(winWidth, winHeight, winTitle.data());
 
 	// Load pipe texture
-	pipeTexture = LoadTexture("assets/sprites/pipe.png");
+	pipeBase = LoadTexture("assets/sprites/pipe_base.png");
+	pipeCap = LoadTexture("assets/sprites/pipe_cap.png");
 
-	// Create bird/player
-	this->bird.init("assets/sprites/bird.png");
-	this->bird.srcRect = {
-		.x = 0,
-		.y = 0,
-		.width = static_cast<float>(this->bird.texture.width),
-		.height = static_cast<float>(this->bird.texture.height),
-	};
-	this->bird.dstRect = {
-		.x = 250.0f,
-		.y = static_cast<float>(GetScreenHeight() / 2.0f),
-		.width = this->bird.srcRect.width * 0.1f,
-		.height = this->bird.texture.height * 0.1f,
-	};
+	pipeBaseSrc.width = static_cast<float>(pipeBase.width);
+	pipeCapSrc.y = static_cast<float>(pipeCap.height - 10);
+	pipeCapSrc.width = static_cast<float>(pipeCap.width);
+
+	// Bird/player
+	this->bird.init("assets/sprites/bird.png", 250.0f, 0.1f);
 
 	// Pipes
-	for(Pipe &pipe : this->pipes) {
-		pipe.srcRect = {0, 0, static_cast<float>(pipeTexture.width), static_cast<float>(pipeTexture.height)};
-		pipe.dstRect.width = 50;
+	for(unsigned long i = 0; i < this->pipes.size(); i++) {
+		this->pipes[i].moveSpeed = 250;
+
+		// Flip the texture for bottom pipes
+		if(i % 2 == 0) this->pipes[i].srcRect.height *= -1;
 	}
 }
 
@@ -57,16 +47,19 @@ void Game::run(void) {
 
 // Update everything
 void Game::update(void) {
-	this->bird.update();
+	this->bird.update(GRAVITY);
 
+	// Spawn a new pipe
 	this->spawnTimer += GetFrameTime();
-	if(spawnTimer >= 1.5f) {
+	if(this->spawnTimer >= 3.5f) {
 		this->spawnPipePair();
 		this->spawnTimer = 0;
 	}
 
+	// Update all pipes
 	for(Pipe &pipe : this->pipes) {
 		pipe.update();
+		if((pipe.dstRect.x + pipe.dstRect.width) < 0) pipe.active = false;
 		if(CheckCollisionRecs(this->bird.dstRect, pipe.dstRect)) this->gameState = STATE_GAMEOVER;
 	}
 }
@@ -77,12 +70,33 @@ void Game::render(void) {
 		ClearBackground(BLACK);
 		DrawFPS(10, 10);
 		this->bird.render();
-		for(Pipe &pipe : this->pipes) pipe.render(pipeTexture);
+		for(Pipe &pipe : this->pipes) {pipe.render(pipeBase, pipeCap, pipeBaseSrc, pipeCapSrc);}
+		if(this->gameState == STATE_GAMEOVER) {DrawText("YOU DIED VRO", 10, 40, 40, RED);}
 	EndDrawing();
+}
+
+// Spawn a pair of pipes
+void Game::spawnPipePair(void) {
+	for(unsigned long i = 0; i < this->pipes.size(); i++) {
+		if(!this->pipes[i].active) {
+			int pipeTop {GetRandomValue(MIN_PIPE_HEIGHT, GetScreenHeight() - PIPE_GAP)};
+
+			// Top pipe
+			this->pipes[i].spawn(GetScreenWidth(), PIPE_GAP, pipeTop, false);
+			this->pipes[i].active = true;
+
+			// Bottom pipe
+			this->pipes[i+1].spawn(GetScreenWidth(), PIPE_GAP, pipeTop, true);
+			this->pipes[i+1].active = true;
+
+			break;
+		}
+	}
 }
 
 // De-initialize everything
 Game::~Game(void) {
-	UnloadTexture(pipeTexture);
+	UnloadTexture(pipeBase);
+	UnloadTexture(pipeCap);
 	CloseWindow();
 }

@@ -4,12 +4,13 @@
 
 struct Pipe {
 	public:
-		Rectangle srcRect {}, dstRect {};
-		int moveSpeed {90}, pipeGap {220};
+		Rectangle srcRect {}, dstRect {.width = 50};
+		int moveSpeed {90};
+		bool active {false};
 
-		void spawn(float x, float gapY, float gapHeight, bool isTopPipe);
+		void spawn(float x, float gap, float gapTopY, bool isTopPipe);
 		void update(void);
-		void render(Texture2D &texture);
+		void render(Texture2D &base, Texture2D &cap, Rectangle &baseSrc, Rectangle &capSrc);
 	
 	private:
 		bool passed {false};

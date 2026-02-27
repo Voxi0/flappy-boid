@@ -1,11 +1,18 @@
 #pragma once
 
+#include <array>
 #include <string>
 #include <raylib.h>
 #include <bird.hpp>
 #include <pipe.hpp>
 
-#define NUM_PIPES 16
+// Constants
+#define GRAVITY 980
+
+// Pipes
+#define NUM_PIPES 8
+#define MIN_PIPE_HEIGHT -50
+#define PIPE_GAP 200
 
 typedef enum {
 	STATE_PLAYING,
@@ -14,7 +21,7 @@ typedef enum {
 
 class Game {
 	public:
-		// Disallow copies of the Game object
+		// Disallow copies of this class
 		Game(const Game&) = delete;
 		Game& operator=(const Game&) = delete;
 
@@ -26,10 +33,11 @@ class Game {
 
 		// Deconstructor
 		~Game(void);
+
 	private:
 		GameState gameState {STATE_PLAYING};
 		Bird bird;
-		Pipe pipes[NUM_PIPES];
+		std::array<Pipe, NUM_PIPES> pipes;
 		float spawnTimer { 0.0f };
 
 		void spawnPipePair(void);
